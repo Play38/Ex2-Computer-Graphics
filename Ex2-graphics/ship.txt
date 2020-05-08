@@ -1,4 +1,4 @@
-#lines(x1,y1,x2,y2
+lines(x1,y1,x2,y2)
 (3,14,5,20)
 (3,14,24,14)
 (5,20,22,20)
@@ -7,11 +7,12 @@
 (8,15,9,19)
 (10,15,11,19)
 (13,2,13,14)
-
-#circles(xCenter,yCenter,R,dRadius)
+#
+circles(xCenter,yCenter,R,dRadius)
 (4,4,R,3)
 (17,16,R,1)
-
-#cruves(x1,y1,x2,y2,x3,y3,x4,y4)
+#
+cruves(x1,y1,x2,y2,x3,y3,x4,y4)
 (13,2,17,3,17,9,13,11)
 (13,2,22,3,22,9,13,11)
+#

@@ -2,6 +2,9 @@
 #include "Pixel.h"
 #include "Point.h"
 #include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <list>
@@ -43,20 +46,24 @@ bool isSecond = false;
 float window_w = 500;
 float window_h = 500;
 
-Point abc[20];
+Point abc[100];
+vector<vector<int>> vectorLines;
+
 int curvePoints = 0;
 int clicks = 4;
 
 int shape = 1; // 1:line, 2:circle, 3:curve
 
-std::vector<Pixel> pixels;		// store all pixels
+vector<Pixel> pixels;		// store all pixels
 
+void drawFromFile();
 void display(void)
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glPointSize(2);
 	glBegin(GL_POINTS);
+
 	for (unsigned int i = 0; i < pixels.size(); i++)
 	{
 		glColor3f(pixels[i].getR(), pixels[i].getG(), pixels[i].getB());
@@ -327,11 +334,90 @@ void callbackInit()
 	glutKeyboardFunc(keyboard);
 	glutMouseFunc(mouse);
 	glutTimerFunc(17, FPS, 0);
+	drawFromFile();
 }
 
+void read_file(char** argv)
+{
+	string line;
+	ifstream myfile("ship.txt");
+	string delimiter = ",";
+	size_t pos = 0;
+	string token;
+	//0 - none, 1 - lines, 2- circle, 3- curves
+	int mode = 0;
+
+
+	if (myfile.is_open())
+	{
+		while (getline(myfile, line))
+		{
+			switch (mode)
+			{
+			case 0:
+			{
+				if (!(line.find("lines")))
+					mode = 1;
+				else if (!(line.find("circles")))
+					mode = 2;
+				else if (!(line.find("curves")))
+					mode = 3;
+				break;
+			}
+			case 1:
+			{
+				int x1, x2, y1, y2;
+				int count = 0;
+				if (!(line.find("#")))
+				{
+					mode = 0;
+					break;
+				}
+				
+				// remove () from the string
+				line = line.substr(1, line.size() - 2);
+
+				while ((pos = line.find(delimiter)) != string::npos) {
+					token = line.substr(0, pos);
+					cout << token << endl;
+					if (count == 0)
+						x1 = stoi(token);
+					else if( count == 1)
+						y1 = stoi(token);
+					else if (count == 2)
+						x2 = stoi(token);
+					count++;
+					line.erase(0, pos + delimiter.length());
+
+				}
+				y2 = stoi(token);	
+				vectorLines.insert(vectorLines.end(), { x1,y1,x2,y2 });
+				break;
+			}
+			}
+			cout << line << '\n';
+		}
+		myfile.close();
+	}
+
+	else cout << "Unable to open file";
+}
+
+void drawFromFile() 
+{
+	string temp;
+	while (!vectorLines.empty())
+	{
+		auto temparray = vectorLines.back();
+		myLine(temparray[0], temparray[1], temparray[2], temparray[3]);
+		vectorLines.pop_back();
+	}
+
+}
 
 int main(int argc, char **argv)
 {
+	read_file(argv);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(window_w, window_h);
