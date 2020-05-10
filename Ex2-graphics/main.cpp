@@ -48,7 +48,8 @@ float window_h = 500;
 
 Point abc[100];
 vector<vector<int>> vectorLines;
-
+vector<vector<int>> vectorCircles;
+vector<vector<int>> vectorCurves;
 int curvePoints = 0;
 int clicks = 4;
 
@@ -346,6 +347,7 @@ void read_file(char** argv)
 	string token;
 	//0 - none, 1 - lines, 2- circle, 3- curves
 	int mode = 0;
+	int count = 0;
 
 
 	if (myfile.is_open())
@@ -354,48 +356,118 @@ void read_file(char** argv)
 		{
 			switch (mode)
 			{
-			case 0:
-			{
-				if (!(line.find("lines")))
-					mode = 1;
-				else if (!(line.find("circles")))
-					mode = 2;
-				else if (!(line.find("curves")))
-					mode = 3;
-				break;
-			}
-			case 1:
-			{
-				int x1, x2, y1, y2;
-				int count = 0;
-				if (!(line.find("#")))
+				case 0:
 				{
-					mode = 0;
+					if (!(line.find("lines")))
+						mode = 1;
+					else if (!(line.find("circles")))
+						mode = 2;
+					else if (!(line.find("curves")))
+						mode = 3;
 					break;
 				}
-				
-				// remove () from the string
-				line = line.substr(1, line.size() - 2);
+				case 1:
+				{
+					int x1, x2, y1, y2;
+					count = 0;
+					if (!(line.find("#")))
+					{
+						mode = 0;
+						break;
+					}
 
-				while ((pos = line.find(delimiter)) != string::npos) {
+					// remove () from the string
+					line = line.substr(1, line.size() - 2);
+
+					while ((pos = line.find(delimiter)) != string::npos) {
+						token = line.substr(0, pos);
+						cout << token << endl;
+						if (count == 0)
+							x1 = stoi(token);
+						else if (count == 1)
+							y1 = stoi(token);
+						else if (count == 2)
+							x2 = stoi(token);
+						count++;
+						line.erase(0, pos + delimiter.length());
+
+					}
 					token = line.substr(0, pos);
-					cout << token << endl;
-					if (count == 0)
-						x1 = stoi(token);
-					else if( count == 1)
-						y1 = stoi(token);
-					else if (count == 2)
-						x2 = stoi(token);
-					count++;
-					line.erase(0, pos + delimiter.length());
-
+					y2 = stoi(token);
+					vectorLines.insert(vectorLines.end(), { x1,y1,x2,y2 });
+					break;
 				}
-				y2 = stoi(token);	
-				vectorLines.insert(vectorLines.end(), { x1,y1,x2,y2 });
-				break;
+				case 2:
+				{
+					int xc, yc, R;
+					count = 0;
+					if (!(line.find("#")))
+					{
+						mode = 0;
+						break;
+					}
+
+					line = line.substr(1, line.size() - 2);
+
+					while ((pos = line.find(delimiter)) != string::npos) {
+						token = line.substr(0, pos);
+						cout << token << endl;
+						if (count == 0)
+							xc = stoi(token);
+						else if (count == 1)
+							yc = stoi(token);
+						else if (count == 2)
+						{}
+						count++;
+						line.erase(0, pos + delimiter.length());
+
+					}
+					token = line.substr(0, pos);
+					R = stoi(token);
+					vectorCircles.insert(vectorCircles.end(), { xc,yc,R });
+					break;
+				}
+
+				case 3:
+				{
+					int x1, y1, x2, y2, x3 ,y3, x4, y4;
+					count = 0;
+
+					if (!(line.find("#")))
+					{
+						mode = 0;
+						break;
+					}
+
+					line = line.substr(1, line.size() - 2);
+
+					while ((pos = line.find(delimiter)) != string::npos) {
+						token = line.substr(0, pos);
+						cout << token << endl;
+						if (count == 0)
+							x1 = stoi(token);
+						else if (count == 1)
+							y1 = stoi(token);
+						else if (count == 2)
+							x2 = stoi(token);
+						else if (count == 3)
+							y2 = stoi(token);
+						else if (count == 4)
+							x3 = stoi(token);
+						else if (count == 5)
+							y3 = stoi(token);
+						else if (count == 6)
+							x4 = stoi(token);
+						count++;
+						line.erase(0, pos + delimiter.length());
+
+					}
+					token = line.substr(0, pos);
+					y4 = stoi(token);
+					vectorCurves.insert(vectorCurves.end(), { x1, y1, x2, y2, x3, y3, x4, y4});
+					break;
+				}
 			}
-			}
-			cout << line << '\n';
 		}
 		myfile.close();
 	}
