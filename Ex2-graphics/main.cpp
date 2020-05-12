@@ -476,27 +476,46 @@ void read_file(char** argv)
 	else cout << "Unable to open file";
 }
 
+int maxElement(vector<vector<int>>& v)
+{
+	int a, nmax = 0;
 
+	for (int i= 0; i < v.size(); i++)
+	{
+			auto it = max_element(begin(v[i]), end(v[i]));
+			a = it[0];
+			nmax = max(a, nmax);
+	}
+
+	return nmax;
+}
 void FitCordsToWindow(vector<vector<int>>& v)
 {
 	auto vtemp = v;
-	// itarate to find max value
-	//auto it = max_element(begin(vtemp[0]), end(vtemp[0]));
-	//int x = it[0];
-	//
-
-	for (int i = 0; i < vtemp.size(); i++)
+	// handle if there's a higher cord number
+	while (maxElement(vtemp) > 500)
 	{
-		for (int j = 0; j < 4; j++)
+		for (int i = 0; i < vtemp.size(); i++)
 		{
-			
-			vtemp[i][j] *= 2;
+			for (int j = 0; j < v[i].size(); j++)
+			{
+
+				vtemp[i][j] /=2;
+			}
 		}
-
-
+	}
+	while (maxElement(vtemp) < 500)
+	{
+		v = vtemp;
+		for (int i = 0; i < vtemp.size(); i++)
+		{
+			for (int j = 0; j < v[i].size(); j++)
+			{
+				vtemp[i][j] = floor(vtemp[i][j] * 1.2);
+			}
+		}
 	}
 	//windows_h , window_w = 500
-	v = vtemp;
 }
 
 void drawFromFile() 
