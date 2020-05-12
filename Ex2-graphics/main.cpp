@@ -338,6 +338,7 @@ void callbackInit()
 	drawFromFile();
 }
 
+// later add errorcheck for invalid input
 void read_file(char** argv)
 {
 	string line;
@@ -475,9 +476,32 @@ void read_file(char** argv)
 	else cout << "Unable to open file";
 }
 
+
+void FitCordsToWindow(vector<vector<int>>& v)
+{
+	auto vtemp = v;
+	// itarate to find max value
+	//auto it = max_element(begin(vtemp[0]), end(vtemp[0]));
+	//int x = it[0];
+	//
+
+	for (int i = 0; i < vtemp.size(); i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			
+			vtemp[i][j] *= 2;
+		}
+
+
+	}
+	//windows_h , window_w = 500
+	v = vtemp;
+}
+
 void drawFromFile() 
 {
-	string temp;
+	FitCordsToWindow(vectorLines);
 	while (!vectorLines.empty())
 	{
 		auto temparray = vectorLines.back();
