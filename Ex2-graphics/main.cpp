@@ -146,39 +146,36 @@ void myLine(int x1, int y1, int x2, int y2)
 /**
  * Midpoint circle algorithm
  */
-void myCircle(int x1, int y1, int x2, int y2)
+void myCircle(int x0, int y0, int radius)
 {
-	int r = sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
-	double d;
-	int x, y;
+	int x = radius;
+	int y = 0;
+	int err = 0;
 
-	x = 0;
-	y = r;
-	d = 1.25 - r;
-
-	while (x <= y)
+	while (x >= y)
 	{
-		drawPixel(x1 + x, y1 + y);
-		drawPixel(x1 - x, y1 + y);
-		drawPixel(x1 + x, y1 - y);
-		drawPixel(x1 - x, y1 - y);
-		drawPixel(x1 + y, y1 + x);
-		drawPixel(x1 - y, y1 + x);
-		drawPixel(x1 + y, y1 - x);
-		drawPixel(x1 - y, y1 - x);
-		x++;
-		if (d < 0)
+		drawPixel(x0 + x, y0 + y);
+		drawPixel(x0 + y, y0 + x);
+		drawPixel(x0 - y, y0 + x);
+		drawPixel(x0 - x, y0 + y);
+		drawPixel(x0 - x, y0 - y);
+		drawPixel(x0 - y, y0 - x);
+		drawPixel(x0 + y, y0 - x);
+		drawPixel(x0 + x, y0 - y);
+
+		if (err <= 0)
 		{
-			d += (double)2 * x + 3;
+			y += 1;
+			err += 2 * y + 1;
 		}
-		else
+
+		if (err > 0)
 		{
-			y--;
-			d += (double)2 * (x - y) + 5;
+			x -= 1;
+			err -= 2 * x + 1;
 		}
 	}
 }
-
 //Calculate the bezier point
 
 
@@ -225,7 +222,7 @@ void mouse(int bin, int state, int x, int y)
 					if (shape == 1)
 						myLine(tmpx, tmpy, x, y);
 					else if (shape == 2)
-						myCircle(tmpx, tmpy, x, y);
+						//myCircle(tmpx, tmpy, x, y);
 					isSecond = false;
 				}
 				if (shape == 3)
@@ -522,12 +519,19 @@ void FitCordsToWindow(vector<vector<int>>& v)
 void drawFromFile() 
 {
 	FitCordsToWindow(vectorLines);
+	FitCordsToWindow(vectorCircles);
 	FitCordsToWindow(vectorCurves);
 	while (!vectorLines.empty())
 	{
 		auto temparray = vectorLines.back();
 		myLine(temparray[0], temparray[1], temparray[2], temparray[3]);
 		vectorLines.pop_back();
+	}
+	while (!vectorCircles.empty())
+	{
+		auto temparray = vectorCircles.back();
+		myCircle(temparray[0], temparray[1], temparray[2]);
+		vectorCircles.pop_back();
 	}
 	while (!vectorCurves.empty())
 	{
