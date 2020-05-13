@@ -50,8 +50,6 @@ Point curveArrayToPrint[100];
 vector<vector<int>> vectorLines;
 vector<vector<int>> vectorCircles;
 vector<vector<int>> vectorCurves;
-int curvePoints = 0;
-int clicks = 4;
 
 int shape = 1; // 1:line, 2:circle, 3:curve
 
@@ -178,18 +176,6 @@ void myCircle(int x0, int y0, int radius)
 }
 //Calculate the bezier point
 
-Point curveCalc(Point PT[], double t) {
-	Point P;
-	P.x = 0; P.y = 0;
-	for (int i = 0; i < clicks; i++)
-	{
-		P.x = P.x + binomial_coff((float)(clicks - 1), (float)i) * pow(t, (double)i) * pow((1 - t), (clicks - 1 - i)) * PT[i].x;
-		P.y = P.y + binomial_coff((float)(clicks - 1), (float)i) * pow(t, (double)i) * pow((1 - t), (clicks - 1 - i)) * PT[i].y;
-	}
-	//cout<<P.x<<endl<<P.y;
-	//cout<<endl<<endl;
-	return P;
-}
 
 void myCurve(vector<int> v)
 {
@@ -200,7 +186,13 @@ void myCurve(vector<int> v)
 	/* Draw each segment of the curve.Make t increment in smaller amounts for a more detailed curve.*/
 	for (double t = 0.0; t <= 1.0; t += 0.002)
 	{
-		Point p2 = curveCalc(curveArrayToPrint, t);
+		Point p2;
+		p2.x = 0; p2.y = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		p2.x = p2.x + binomial_coff((float)(4 - 1), (float)i) * pow(t, (double)i) * pow((1 - t), (4 - 1 - i)) * curveArrayToPrint[i].x;
+		p2.y = p2.y + binomial_coff((float)(4 - 1), (float)i) * pow(t, (double)i) * pow((1 - t), (4 - 1 - i)) * curveArrayToPrint[i].y;
+	}
 		myLine(p1.x, p1.y, p2.x, p2.y);
 		p1 = p2;
 	}
@@ -242,20 +234,20 @@ void mouse(int bin, int state, int x, int y)
 				}
 				if (shape == 3)
 				{
-					curveArrayToPrint[curvePoints].setxy((float)x, (float)(y));
-					curvePoints++;
+					//curveArrayToPrint[curvePoints].setxy((float)x, (float)(y));
+					//curvePoints++;
 
-					if (curvePoints == clicks)
+					//if (curvePoints == clicks)
 					{
-						Point p1 = curveArrayToPrint[0];
+						//Point p1 = curveArrayToPrint[0];
 						/* Draw each segment of the curve.Make t increment in smaller amounts for a more detailed curve.*/
-						for (double t = 0.0; t <= 1.0; t += 0.002)
+						/*for (double t = 0.0; t <= 1.0; t += 0.002)
 						{
-							Point p2 = curveCalc(curveArrayToPrint, t);
+							//Point p2 = curveCalc(curveArrayToPrint, t);
 							myLine(p1.x, p1.y, p2.x, p2.y);
 							p1 = p2;
 						}
-						curvePoints = 0;
+						curvePoints = 0;*/
 					}
 				}
 			}
