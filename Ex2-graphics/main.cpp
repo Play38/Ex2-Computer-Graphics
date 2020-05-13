@@ -46,7 +46,7 @@ bool isSecond = false;
 float window_w = 500;
 float window_h = 500;
 
-Point abc[100];
+Point curveArrayToPrint[100];
 vector<vector<int>> vectorLines;
 vector<vector<int>> vectorCircles;
 vector<vector<int>> vectorCurves;
@@ -178,8 +178,7 @@ void myCircle(int x0, int y0, int radius)
 }
 //Calculate the bezier point
 
-
-Point myCurve(Point PT[], double t) {
+Point curveCalc(Point PT[], double t) {
 	Point P;
 	P.x = 0; P.y = 0;
 	for (int i = 0; i < clicks; i++)
@@ -190,6 +189,22 @@ Point myCurve(Point PT[], double t) {
 	//cout<<P.x<<endl<<P.y;
 	//cout<<endl<<endl;
 	return P;
+}
+
+void myCurve(vector<int> v)
+{
+	for (int j = 0; j <= 6; j += 2)
+		curveArrayToPrint[j / 2].setxy((float)v[j], (float)v[j + 1]);
+
+	Point p1 = curveArrayToPrint[0];
+	/* Draw each segment of the curve.Make t increment in smaller amounts for a more detailed curve.*/
+	for (double t = 0.0; t <= 1.0; t += 0.002)
+	{
+		Point p2 = curveCalc(curveArrayToPrint, t);
+		myLine(p1.x, p1.y, p2.x, p2.y);
+		p1 = p2;
+	}
+	
 }
 
 void keyboard(unsigned char key, int xIn, int yIn)
@@ -227,16 +242,16 @@ void mouse(int bin, int state, int x, int y)
 				}
 				if (shape == 3)
 				{
-					abc[curvePoints].setxy((float)x, (float)(y));
+					curveArrayToPrint[curvePoints].setxy((float)x, (float)(y));
 					curvePoints++;
 
 					if (curvePoints == clicks)
 					{
-						Point p1 = abc[0];
+						Point p1 = curveArrayToPrint[0];
 						/* Draw each segment of the curve.Make t increment in smaller amounts for a more detailed curve.*/
 						for (double t = 0.0; t <= 1.0; t += 0.002)
 						{
-							Point p2 = myCurve(abc, t);
+							Point p2 = curveCalc(curveArrayToPrint, t);
 							myLine(p1.x, p1.y, p2.x, p2.y);
 							p1 = p2;
 						}
@@ -521,36 +536,15 @@ void drawFromFile()
 	FitCordsToWindow(vectorLines);
 	FitCordsToWindow(vectorCircles);
 	FitCordsToWindow(vectorCurves);
-	while (!vectorLines.empty())
-	{
-		auto temparray = vectorLines.back();
-		myLine(temparray[0], temparray[1], temparray[2], temparray[3]);
-		vectorLines.pop_back();
-	}
-	while (!vectorCircles.empty())
-	{
-		auto temparray = vectorCircles.back();
-		myCircle(temparray[0], temparray[1], temparray[2]);
-		vectorCircles.pop_back();
-	}
-	while (!vectorCurves.empty())
-	{
-		auto temparray = vectorCurves.back();
-		// loop for inserting the values to point, then to tranfer them to curve loop
-		for (int i = 0; i <= 6; i+=2)
-		{
-			abc[i/2].setxy((float)temparray[i], (float)temparray[i+1]);
-		}
-		Point p1 = abc[0];
-		/* Draw each segment of the curve.Make t increment in smaller amounts for a more detailed curve.*/
-		for (double t = 0.0; t <= 1.0; t += 0.002)
-		{
-			Point p2 = myCurve(abc, t);
-			myLine(p1.x, p1.y, p2.x, p2.y);
-			p1 = p2;
-		}
-		vectorCurves.pop_back();
-	}
+	for (int i = 0; i < vectorLines.size(); i++)
+		myLine(vectorLines[i][0], vectorLines[i][1], vectorLines[i][2], vectorLines[i][3]);
+
+	for (int i = 0; i < vectorCircles.size(); i++)
+		myCircle(vectorCircles[i][0], vectorCircles[i][1], vectorCircles[i][2]);
+
+	for (int i = 0; i < vectorCurves.size(); i++)
+		myCurve(vectorCurves[i]);
+	
 
 }
 
