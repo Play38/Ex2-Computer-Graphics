@@ -511,21 +511,41 @@ void FitCordsToWindow(vector<vector<int>>& v)
 		{
 			for (int j = 0; j < v[i].size(); j++)
 			{
-				vtemp[i][j] = floor(vtemp[i][j] * 1.2);
+				vtemp[i][j] = vtemp[i][j] * 2;
 			}
 		}
 	}
+	int yx = 5;
 	//windows_h , window_w = 500
 }
 
 void drawFromFile() 
 {
 	FitCordsToWindow(vectorLines);
+	FitCordsToWindow(vectorCurves);
 	while (!vectorLines.empty())
 	{
 		auto temparray = vectorLines.back();
 		myLine(temparray[0], temparray[1], temparray[2], temparray[3]);
 		vectorLines.pop_back();
+	}
+	while (!vectorCurves.empty())
+	{
+		auto temparray = vectorCurves.back();
+		// loop for inserting the values to point, then to tranfer them to curve loop
+		for (int i = 0; i <= 6; i+=2)
+		{
+			abc[i/2].setxy((float)temparray[i], (float)temparray[i+1]);
+		}
+		Point p1 = abc[0];
+		/* Draw each segment of the curve.Make t increment in smaller amounts for a more detailed curve.*/
+		for (double t = 0.0; t <= 1.0; t += 0.002)
+		{
+			Point p2 = myCurve(abc, t);
+			myLine(p1.x, p1.y, p2.x, p2.y);
+			p1 = p2;
+		}
+		vectorCurves.pop_back();
 	}
 
 }
