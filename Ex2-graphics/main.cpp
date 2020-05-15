@@ -233,15 +233,39 @@ void findObHeightAndWeight()
 		nmin = min(a, nmin);
 	}
 	objectWidth = abs(nmax - nmin);
+	a = 0;
+	nmax = 0;
+	nmin = 501;
+	for (unsigned int i = 0; i < pixels.size(); i++)
+	{
+		a = pixels[i].getY();
+		nmax = max(a, nmax);
+		nmin = min(a, nmin);
+	}
+	objectHeight = abs(nmax - nmin);
 }
 void horizonFlip()
 {
-	findObHeightAndWeight();
+	//findObHeightAndWeight(); // not needed for now, to delete in the end
 	auto ptemp= pixels;
 	clear();
 	for (unsigned int i = 0; i < ptemp.size(); i++)
 	{
-		ptemp[i].setPosition(objectWidth - ptemp[i].getX() - 1, ptemp[i].getY());
+		ptemp[i].setPosition(window_w - ptemp[i].getX() , ptemp[i].getY());
+	}
+	centerObject(ptemp);
+	pixels = ptemp;
+
+
+}
+void verticalFlip()
+{
+	//findObHeightAndWeight(); // not needed for now, to delete in the end
+	auto ptemp = pixels;
+	clear();
+	for (unsigned int i = 0; i < ptemp.size(); i++)
+	{
+		ptemp[i].setPosition(ptemp[i].getX(), window_h - ptemp[i].getY());
 	}
 	centerObject(ptemp);
 	pixels = ptemp;
@@ -250,8 +274,19 @@ void horizonFlip()
 }
 void mouse(int bin, int state, int x, int y)
 {
+	if (shape == 1)
+	{
+		horizonFlip();
+		shape = 0;
+	}
+	else if (shape == 2)
+	{
+		verticalFlip();
+		shape = 0;
+	}
 	if (bin == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
+
 			{
 				if (!isSecond)
 				{
@@ -261,13 +296,7 @@ void mouse(int bin, int state, int x, int y)
 				}
 				else
 				{
-					if (shape == 1)
-					{
-						cout << "bop" << endl;
-						horizonFlip();
-						shape = 0;
-					}
-					else if (shape == 2)
+					if (shape == 4)
 					{
 
 					}
@@ -316,8 +345,10 @@ void processMainMenu(int value)
 	{
 	case 0:
 		quit();
-	
+		break;
 	}
+	
+
 }
 
 
@@ -330,7 +361,12 @@ void processShapeMenu(int value)
 	switch (shape)
 	{
 	case 1:
+		verticalFlip();
+		break;
 	case 2:
+		horizonFlip();
+		break;
+	case 3:
 		glutSetCursor(GLUT_CURSOR_CROSSHAIR);
 		break;
 	}
@@ -343,9 +379,9 @@ void createOurMenu()
 {
 
 	int actionMenu = glutCreateMenu(processShapeMenu);
-	glutAddMenuEntry("Flip horizon", 1);
-	glutAddMenuEntry("Circle", 2);
-	glutAddMenuEntry("Curve", 3);
+	glutAddMenuEntry("Horizon Flip", 1);
+	glutAddMenuEntry("Vertical Flip", 2);
+	glutAddMenuEntry("Move", 3);
 
 
 
