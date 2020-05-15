@@ -40,3 +40,10 @@ void Pixel::setPosition(int x, int y){
     newX = x;
     newY = y;
 }
+
+const Pixel& Pixel::operator=(const Pixel& rPixel)
+{
+    newX = rPixel.newX;
+    newY = rPixel.newY;
+    return *this;
+}

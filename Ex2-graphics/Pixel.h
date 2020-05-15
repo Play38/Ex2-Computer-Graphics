@@ -20,10 +20,12 @@ public:
   float getB();
 
   void setPosition(int, int);
+  const Pixel& operator=(const Pixel& rPixel);
 
 private:
   int newX;
   int newY;
+  int width;
   float newR;
   float newG;
   float newB;

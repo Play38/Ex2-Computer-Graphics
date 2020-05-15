@@ -45,13 +45,13 @@ int tmpcx1, tmpcy1, tmpcx2, tmpcy2, tmpcx3, tmpcy3, tmpcx4, tmpcy4;
 bool isSecond = false;
 float window_w = 500;
 float window_h = 500;
-
+int objectWidth, objectHeight = 0;
 Point curveArrayToPrint[100];
 vector<vector<int>> vectorLines;
 vector<vector<int>> vectorCircles;
 vector<vector<int>> vectorCurves;
 
-int shape = 1; // 1:line, 2:circle, 3:curve
+int shape = 1; // modes
 
 vector<Pixel> pixels;		// store all pixels
 
@@ -72,7 +72,12 @@ void display(void)
 	glutSwapBuffers();
 }
 
-
+void clear()
+{
+	pixels.clear();
+	glClear(GL_COLOR_BUFFER_BIT);
+	glutSwapBuffers();
+}
 
 void quit()
 {
@@ -212,11 +217,41 @@ void keyboard(unsigned char key, int xIn, int yIn)
 	}
 }
 
+void setHeightWidth()
+{
+
+	int a = 0;
+	int nmax = 0;
+	int nmin = 501;
+
+	for (unsigned int i = 0; i < pixels.size(); i++)
+	{
+		a = pixels[i].getX();
+		nmax = max(a, nmax);
+		nmin = min(a, nmin);
+	}
+	objectWidth = abs(nmax - nmin);
+}
+void horizonFlip()
+{
+	setHeightWidth();
+	auto pixeltemp = pixels;
+	int tempx, tempy = 0;
+	clear();
+	for (unsigned int i = 0; i < pixeltemp.size(); i++)
+	{
+		tempx = objectWidth - pixeltemp[i].getX() - 1;
+		tempy = pixeltemp[i].getY();
+		pixeltemp[i].setPosition(tempx, tempy);
+	}
+	pixels = pixeltemp;
+
+
+}
 void mouse(int bin, int state, int x, int y)
 {
 	if (bin == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		
 			{
 				if (!isSecond)
 				{
@@ -227,9 +262,15 @@ void mouse(int bin, int state, int x, int y)
 				else
 				{
 					if (shape == 1)
-						myLine(tmpx, tmpy, x, y);
+					{
+						cout << "bop" << endl;
+						horizonFlip();
+						shape = 0;
+					}
 					else if (shape == 2)
-						//myCircle(tmpx, tmpy, x, y);
+					{
+
+					}
 					isSecond = false;
 				}
 				if (shape == 3)
@@ -301,15 +342,15 @@ void processShapeMenu(int value)
 void createOurMenu()
 {
 
-	int shapeMenu = glutCreateMenu(processShapeMenu);
-	glutAddMenuEntry("Line", 1);
+	int actionMenu = glutCreateMenu(processShapeMenu);
+	glutAddMenuEntry("Flip horizon", 1);
 	glutAddMenuEntry("Circle", 2);
 	glutAddMenuEntry("Curve", 3);
 
 
 
 	int main_id = glutCreateMenu(processMainMenu);
-	glutAddSubMenu("Shapes", shapeMenu);
+	glutAddSubMenu("Actions", actionMenu);
 	glutAddMenuEntry("Quit", 0);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
@@ -523,6 +564,28 @@ void FitCordsToWindow(vector<vector<int>>& v)
 	//windows_h , window_w = 500
 }
 
+void centerObject()
+{
+	int a = 0;
+	int nmax = 0;
+	int nmin = 1;
+
+	for (unsigned int i = 0; i < pixels.size(); i++)
+	{
+		a = pixels[i].getX();
+		nmax = max(a, nmax);
+		nmin = min(a, nmin);
+	}
+	nmax = abs(window_w - nmax);
+	nmin = abs(window_w - nmin);
+
+	/*while (nmax != nmin)
+	{
+
+		nmax = abs(window_w - nmax);
+		nmin = abs(window_w - nmin);
+	}*/
+}
 void drawFromFile() 
 {
 	FitCordsToWindow(vectorLines);
@@ -536,8 +599,8 @@ void drawFromFile()
 
 	for (int i = 0; i < vectorCurves.size(); i++)
 		myCurve(vectorCurves[i]);
-	
 
+	centerObject();
 }
 
 int main(int argc, char **argv)
