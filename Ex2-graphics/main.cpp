@@ -56,6 +56,8 @@ int shape = 1; // modes
 vector<Pixel> pixels;		// store all pixels
 
 void drawFromFile();
+void findObCenter(int& centerX, int& centerY);
+void centerObject();
 void display(void)
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -563,28 +565,39 @@ void FitCordsToWindow(vector<vector<int>>& v)
 	int yx = 5;
 	//windows_h , window_w = 500
 }
-
-void centerObject()
+void findObCenter(int &centerX, int &centerY)
 {
-	int a = 0;
-	int nmax = 0;
-	int nmin = 1;
-
 	for (unsigned int i = 0; i < pixels.size(); i++)
 	{
-		a = pixels[i].getX();
-		nmax = max(a, nmax);
-		nmin = min(a, nmin);
+		centerX += pixels[i].getX();
+		centerY += pixels[i].getY();
 	}
-	nmax = abs(window_w - nmax);
-	nmin = abs(window_w - nmin);
+}
+void centerObject()
+{
+	auto pixeltemp = pixels;
+	int centerX = 0;
+	int centerY = 0;
+	findObCenter(centerX, centerY);
+	
+	centerX /= pixels.size();
+	centerY /= pixels.size();
+	////// CHECK where to center
+	if (centerX > (window_w/2))
+		centerX = centerX - window_w / 2;
+	else
+		centerX = window_w/2 - centerX;
 
-	/*while (nmax != nmin)
+	if (centerY > (window_h / 2))
+		centerY = centerY - window_w / 2;
+	else
+		centerY = window_w / 2 - centerY;
+	////
+	for (unsigned int i = 0; i < pixeltemp.size(); i++)
 	{
-
-		nmax = abs(window_w - nmax);
-		nmin = abs(window_w - nmin);
-	}*/
+		pixeltemp[i].setPosition(pixeltemp[i].getX() + centerX, pixeltemp[i].getY() - centerY);
+	}
+	pixels = pixeltemp;
 }
 void drawFromFile() 
 {
