@@ -238,13 +238,10 @@ void horizonFlip()
 {
 	findObHeightAndWeight();
 	auto ptemp= pixels;
-	int tempx, tempy = 0;
 	clear();
 	for (unsigned int i = 0; i < ptemp.size(); i++)
 	{
-		tempx = objectWidth - ptemp[i].getX() - 1;
-		tempy = ptemp[i].getY();
-		ptemp[i].setPosition(tempx, tempy);
+		ptemp[i].setPosition(objectWidth - ptemp[i].getX() - 1, ptemp[i].getY());
 	}
 	centerObject(ptemp);
 	pixels = ptemp;
