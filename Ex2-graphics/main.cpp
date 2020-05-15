@@ -56,8 +56,8 @@ int shape = 1; // modes
 vector<Pixel> pixels;		// store all pixels
 
 void drawFromFile();
-void findObCenter(int& centerX, int& centerY);
-void centerObject();
+void findObCenter(vector<Pixel>&p,int& centerX, int& centerY);
+void centerObject(vector<Pixel> &p);
 void display(void)
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -219,7 +219,7 @@ void keyboard(unsigned char key, int xIn, int yIn)
 	}
 }
 
-void setHeightWidth()
+void findObHeightAndWeight()
 {
 
 	int a = 0;
@@ -236,17 +236,18 @@ void setHeightWidth()
 }
 void horizonFlip()
 {
-	setHeightWidth();
-	auto pixeltemp = pixels;
+	findObHeightAndWeight();
+	auto ptemp= pixels;
 	int tempx, tempy = 0;
 	clear();
-	for (unsigned int i = 0; i < pixeltemp.size(); i++)
+	for (unsigned int i = 0; i < ptemp.size(); i++)
 	{
-		tempx = objectWidth - pixeltemp[i].getX() - 1;
-		tempy = pixeltemp[i].getY();
-		pixeltemp[i].setPosition(tempx, tempy);
+		tempx = objectWidth - ptemp[i].getX() - 1;
+		tempy = ptemp[i].getY();
+		ptemp[i].setPosition(tempx, tempy);
 	}
-	pixels = pixeltemp;
+	centerObject(ptemp);
+	pixels = ptemp;
 
 
 }
@@ -565,23 +566,22 @@ void FitCordsToWindow(vector<vector<int>>& v)
 	int yx = 5;
 	//windows_h , window_w = 500
 }
-void findObCenter(int &centerX, int &centerY)
+void findObCenter(vector<Pixel> &p,int &centerX, int &centerY)
 {
-	for (unsigned int i = 0; i < pixels.size(); i++)
+	for (unsigned int i = 0; i < p.size(); i++)
 	{
-		centerX += pixels[i].getX();
-		centerY += pixels[i].getY();
+		centerX += p[i].getX();
+		centerY += p[i].getY();
 	}
 }
-void centerObject()
+void centerObject(vector<Pixel> &p)
 {
-	auto pixeltemp = pixels;
 	int centerX = 0;
 	int centerY = 0;
-	findObCenter(centerX, centerY);
+	findObCenter(p,centerX, centerY);
 	
-	centerX /= pixels.size();
-	centerY /= pixels.size();
+	centerX /= p.size();
+	centerY /= p.size();
 	////// CHECK where to center
 	if (centerX > (window_w/2))
 		centerX = centerX - window_w / 2;
@@ -593,11 +593,10 @@ void centerObject()
 	else
 		centerY = window_w / 2 - centerY;
 	////
-	for (unsigned int i = 0; i < pixeltemp.size(); i++)
+	for (unsigned int i = 0; i < p.size(); i++)
 	{
-		pixeltemp[i].setPosition(pixeltemp[i].getX() + centerX, pixeltemp[i].getY() - centerY);
+		p[i].setPosition(p[i].getX() + centerX, p[i].getY() - centerY);
 	}
-	pixels = pixeltemp;
 }
 void drawFromFile() 
 {
@@ -613,7 +612,10 @@ void drawFromFile()
 	for (int i = 0; i < vectorCurves.size(); i++)
 		myCurve(vectorCurves[i]);
 
-	centerObject();
+	auto ptemp = pixels;
+	centerObject(ptemp);
+	pixels = ptemp;
+
 }
 
 int main(int argc, char **argv)
