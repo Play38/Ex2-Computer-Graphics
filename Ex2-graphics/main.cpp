@@ -52,12 +52,15 @@ vector<vector<int>> vectorCircles;
 vector<vector<int>> vectorCurves;
 
 int shape = 1; // modes
-
+int movex = 0;
+int movey = 0;
+bool moved = false;
 vector<Pixel> pixels;		// store all pixels
 
 void drawFromFile();
 void findObCenter(vector<Pixel>&p,int& centerX, int& centerY);
 void centerObject(vector<Pixel> &p);
+void move(int x, int y, int tmpx, int tmpy);
 void display(void)
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -246,36 +249,47 @@ void findObHeightAndWeight()
 }
 void horizonFlip()
 {
-	//findObHeightAndWeight(); // not needed for now, to delete in the end
+
 	auto ptemp= pixels;
 	clear();
+	if (moved)
+		centerObject(ptemp);
 	for (unsigned int i = 0; i < ptemp.size(); i++)
 	{
 		ptemp[i].setPosition(window_w - ptemp[i].getX() , ptemp[i].getY());
 	}
-	centerObject(ptemp);
 	pixels = ptemp;
+	if (moved)
+		move(0, 0, 0, 0);
+	
 
 
 }
 void verticalFlip()
 {
-	//findObHeightAndWeight(); // not needed for now, to delete in the end
 	auto ptemp = pixels;
 	clear();
+	if (moved)
+		centerObject(ptemp);
 	for (unsigned int i = 0; i < ptemp.size(); i++)
 	{
 		ptemp[i].setPosition(ptemp[i].getX(), window_h - ptemp[i].getY());
 	}
-	centerObject(ptemp);
 	pixels = ptemp;
+	if (moved)
+		move(0, 0, 0, 0);
+
 
 
 }
 void move(int x, int y, int tmpx, int tmpy)
 {
-	int movex = x - tmpx;
-	int movey = tmpy - y;
+	moved = true;
+	if (x | y | tmpx | tmpy)
+	{
+		movex = x - tmpx;
+		movey = tmpy - y;
+	}
 	auto ptemp = pixels;
 	clear();
 	for (unsigned int i = 0; i < ptemp.size(); i++)
