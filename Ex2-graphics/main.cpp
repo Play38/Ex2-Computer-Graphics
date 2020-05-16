@@ -84,6 +84,13 @@ void clear()
 	glutSwapBuffers();
 }
 
+void clearAll()
+{
+	pixels.clear();
+	centeredPixels.clear();
+	glClear(GL_COLOR_BUFFER_BIT);
+	glutSwapBuffers();
+}
 void quit()
 {
 	std::cout << "Goodbye" << std::endl;
@@ -383,6 +390,10 @@ void processMainMenu(int value)
 		glutSetCursor(GLUT_CURSOR_CROSSHAIR);
 		break;
 
+	case 5:
+		clearAll();
+		break;
+
 	case 7:
 		quit();
 		break;
@@ -408,7 +419,7 @@ void createOurMenu()
 	glutAddSubMenu("Flips", flipMenu);
 	glutAddSubMenu("Zoom TBD", zoomMenu);
 	glutAddMenuEntry("Move", 4);
-	glutAddMenuEntry("Clear TBD", 5);
+	glutAddMenuEntry("Clear", 5);
 	glutAddMenuEntry("Load File TBD", 6);
 	glutAddMenuEntry("Quit", 7);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
