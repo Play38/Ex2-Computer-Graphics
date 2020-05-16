@@ -54,6 +54,7 @@ vector<vector<int>> vectorCurves;
 int shape = 1; // modes
 int movex = 0;
 int movey = 0;
+int totalZoom = 0;
 bool moved = false;
 vector<Pixel> pixels;		// store all pixels
 vector<Pixel> centeredPixels;
@@ -724,6 +725,9 @@ void drawObject(int mode, int zoom)
 	centerObject(ptemp);
 	pixels = ptemp;
 	centeredPixels = ptemp;
+
+	if (moved)
+		move(0, 0, 0, 0);
 }
 
 int main(int argc, char **argv)
