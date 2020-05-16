@@ -54,8 +54,10 @@ vector<vector<int>> vectorCurves;
 int shape = 1; // modes
 int movex = 0;
 int movey = 0;
-int totalZoom = 0;
+int totalZoom = 0; // minus for zooming out, plus for zooming in, counting the numbers in order to retrain original polygons
 bool moved = false;
+bool horizontal = false;
+bool vertical = false;
 vector<Pixel> pixels;		// store all pixels
 vector<Pixel> centeredPixels;
 void drawObject(int mode, int zoom);
@@ -255,9 +257,12 @@ void findObHeightAndWeight()
 	}
 	objectHeight = abs(nmax - nmin);
 }
-void horizonFlip()
+void horizonFlip(int c)
 {
-
+	if (horizontal)
+		horizontal = false;
+	else
+		horizontal = true;
 	auto ptemp= pixels;
 	clear();
 	if (moved)
@@ -270,14 +275,19 @@ void horizonFlip()
 	if (moved)
 	{
 		centeredPixels = ptemp;
-		move(0, 0, 0, 0);
+		if(c)
+			move(0, 0, 0, 0);
 	}
 	
 
 
 }
-void verticalFlip()
+void verticalFlip(int c)
 {
+	if (vertical)
+		vertical = false;
+	else
+		vertical = true;
 	auto ptemp = pixels;
 	clear();
 	if (moved)
@@ -290,7 +300,8 @@ void verticalFlip()
 	if (moved)
 	{
 		centeredPixels = ptemp;
-		move(0, 0, 0, 0);
+		if (c)
+			move(0, 0, 0, 0);
 	}
 
 
@@ -389,10 +400,10 @@ void processFlipMenu(int value)
 	switch (shape)
 	{
 	case 0:
-		verticalFlip();
+		verticalFlip(1);
 		break;
 	case 1:
-		horizonFlip();
+		horizonFlip(1);
 		break;
 	}
 }
@@ -725,7 +736,17 @@ void drawObject(int mode, int zoom)
 	centerObject(ptemp);
 	pixels = ptemp;
 	centeredPixels = ptemp;
-
+	//
+	if (horizontal)
+	{
+		horizonFlip(0);
+		horizontal = true;
+	}
+	if (vertical)
+	{
+		verticalFlip(0);
+		vertical = true;
+	}
 	if (moved)
 		move(0, 0, 0, 0);
 }
