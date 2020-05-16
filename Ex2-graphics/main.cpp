@@ -272,18 +272,22 @@ void verticalFlip()
 
 
 }
+void move(int x, int y, int tmpx, int tmpy)
+{
+	int movex = x - tmpx;
+	int movey = tmpy - y;
+	auto ptemp = pixels;
+	clear();
+	for (unsigned int i = 0; i < ptemp.size(); i++)
+	{
+		ptemp[i].setPosition( ptemp[i].getX() + movex, ptemp[i].getY() + movey);
+	}
+	pixels = ptemp;
+}
 void mouse(int bin, int state, int x, int y)
 {
-	if (shape == 1)
-	{
-		horizonFlip();
-		shape = 0;
-	}
-	else if (shape == 2)
-	{
-		verticalFlip();
-		shape = 0;
-	}
+
+
 	if (bin == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 
@@ -296,13 +300,13 @@ void mouse(int bin, int state, int x, int y)
 				}
 				else
 				{
-					if (shape == 4)
+					if (shape == 3)
 					{
-
+						move(x, y, tmpx, tmpy);
 					}
 					isSecond = false;
 				}
-				if (shape == 3)
+				if (shape == 4)
 				{
 					//curveArrayToPrint[curvePoints].setxy((float)x, (float)(y));
 					//curvePoints++;
