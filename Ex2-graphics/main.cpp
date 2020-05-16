@@ -56,7 +56,7 @@ int movex = 0;
 int movey = 0;
 bool moved = false;
 vector<Pixel> pixels;		// store all pixels
-
+vector<Pixel> centeredPixels;
 void drawFromFile();
 void findObCenter(vector<Pixel>&p,int& centerX, int& centerY);
 void centerObject(vector<Pixel> &p);
@@ -253,14 +253,17 @@ void horizonFlip()
 	auto ptemp= pixels;
 	clear();
 	if (moved)
-		centerObject(ptemp);
+		ptemp = centeredPixels;
 	for (unsigned int i = 0; i < ptemp.size(); i++)
 	{
 		ptemp[i].setPosition(window_w - ptemp[i].getX() , ptemp[i].getY());
 	}
 	pixels = ptemp;
 	if (moved)
+	{
+		centeredPixels = ptemp;
 		move(0, 0, 0, 0);
+	}
 	
 
 
@@ -270,15 +273,17 @@ void verticalFlip()
 	auto ptemp = pixels;
 	clear();
 	if (moved)
-		centerObject(ptemp);
+		ptemp = centeredPixels;
 	for (unsigned int i = 0; i < ptemp.size(); i++)
 	{
 		ptemp[i].setPosition(ptemp[i].getX(), window_h - ptemp[i].getY());
 	}
 	pixels = ptemp;
 	if (moved)
+	{
+		centeredPixels = ptemp;
 		move(0, 0, 0, 0);
-
+	}
 
 
 }
@@ -666,7 +671,7 @@ void drawFromFile()
 	auto ptemp = pixels;
 	centerObject(ptemp);
 	pixels = ptemp;
-
+	centeredPixels = ptemp;
 }
 
 int main(int argc, char **argv)
