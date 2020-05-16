@@ -57,7 +57,7 @@ int movey = 0;
 bool moved = false;
 vector<Pixel> pixels;		// store all pixels
 vector<Pixel> centeredPixels;
-void drawFromFile();
+void drawObject(int mode, int zoom);
 void findObCenter(vector<Pixel>&p,int& centerX, int& centerY);
 void centerObject(vector<Pixel> &p);
 void move(int x, int y, int tmpx, int tmpy);
@@ -310,6 +310,35 @@ void move(int x, int y, int tmpx, int tmpy)
 	}
 	pixels = ptemp;
 }
+
+void zoomInOut(vector<vector<int>>& v, int mode)
+{
+	auto vtemp = v;
+	if (mode) // if 1 zoomout, 0 zoomin
+	{
+		for (int i = 0; i < vtemp.size(); i++)
+		{
+			for (int j = 0; j < vtemp[i].size(); j++)
+			{
+
+				vtemp[i][j] /= 2;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < vtemp.size(); i++)
+		{
+			for (int j = 0; j < vtemp[i].size(); j++)
+			{
+
+				vtemp[i][j] *= 2;
+			}
+		}
+	}
+
+	v = vtemp;
+}
 void mouse(int bin, int state, int x, int y)
 {
 
@@ -370,11 +399,13 @@ void processFlipMenu(int value)
 void processZoomMenu(int value)
 {
 
-	switch (shape)
+	switch (value)
 	{
 	case 2:
+		drawObject(1, 0);
 		break;
 	case 3:
+		drawObject(1, 1);
 		break;
 	}
 }
@@ -450,7 +481,7 @@ void callbackInit()
 	glutKeyboardFunc(keyboard);
 	glutMouseFunc(mouse);
 	glutTimerFunc(17, FPS, 0);
-	drawFromFile();
+	drawObject(0, 0);
 }
 
 // later add errorcheck for invalid input
@@ -612,25 +643,25 @@ void FitCordsToWindow(vector<vector<int>>& v)
 	{
 		for (int i = 0; i < vtemp.size(); i++)
 		{
-			for (int j = 0; j < v[i].size(); j++)
+			for (int j = 0; j < vtemp[i].size(); j++)
 			{
 
 				vtemp[i][j] /=2;
 			}
 		}
 	}
+	v = vtemp;
 	while (maxElement(vtemp) < 500)
 	{
-		v = vtemp;
+		v = vtemp; //there's a reason why it's here
 		for (int i = 0; i < vtemp.size(); i++)
 		{
-			for (int j = 0; j < v[i].size(); j++)
+			for (int j = 0; j < vtemp[i].size(); j++)
 			{
 				vtemp[i][j] = vtemp[i][j] * 2;
 			}
 		}
 	}
-	int yx = 5;
 	//windows_h , window_w = 500
 }
 void findObCenter(vector<Pixel> &p,int &centerX, int &centerY)
@@ -665,11 +696,21 @@ void centerObject(vector<Pixel> &p)
 		p[i].setPosition(p[i].getX() + centerX, p[i].getY() - centerY);
 	}
 }
-void drawFromFile() 
+void drawObject(int mode, int zoom) 
 {
-	FitCordsToWindow(vectorLines);
-	FitCordsToWindow(vectorCircles);
-	FitCordsToWindow(vectorCurves);
+	clearAll();
+	if (mode)
+	{
+		zoomInOut(vectorLines,zoom);
+		zoomInOut(vectorCircles, zoom);
+		zoomInOut(vectorCurves, zoom);
+	}
+	else
+	{
+		FitCordsToWindow(vectorLines);
+		FitCordsToWindow(vectorCircles);
+		FitCordsToWindow(vectorCurves);
+	}
 	for (int i = 0; i < vectorLines.size(); i++)
 		myLine(vectorLines[i][0], vectorLines[i][1], vectorLines[i][2], vectorLines[i][3]);
 
