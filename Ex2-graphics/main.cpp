@@ -54,7 +54,7 @@ vector<vector<int>> vectorCurves;
 int shape = 1; // modes
 int movex = 0;
 int movey = 0;
-int totalZoom = 0; // minus for zooming out, plus for zooming in, counting the numbers in order to retrain original polygons
+int zoomStop = 4; // was made to prevent cord data loss for zooming out passed the original cords
 bool moved = false;
 bool horizontal = false;
 bool vertical = false;
@@ -413,11 +413,16 @@ void processZoomMenu(int value)
 
 	switch (value)
 	{
-	case 2:
+	case 2: // zoom in
 		drawObject(1, 0);
+		zoomStop++;
 		break;
-	case 3:
-		drawObject(1, 1);
+	case 3: //zoom out
+		if (zoomStop != 0)
+		{
+			drawObject(1, 1);
+			zoomStop--;
+		}
 		break;
 	}
 }
