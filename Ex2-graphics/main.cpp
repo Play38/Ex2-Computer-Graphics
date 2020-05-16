@@ -656,7 +656,7 @@ void FitCordsToWindow(vector<vector<int>>& v)
 {
 	auto vtemp = v;
 	// handle if there's a higher cord number
-	while (maxElement(vtemp) > 200)
+	while (maxElement(vtemp) > 250)
 	{
 		for (int i = 0; i < vtemp.size(); i++)
 		{
@@ -668,7 +668,7 @@ void FitCordsToWindow(vector<vector<int>>& v)
 		}
 	}
 	v = vtemp;
-	while (maxElement(vtemp) < 200)
+	while (maxElement(vtemp) < 250)
 	{
 		v = vtemp; //there's a reason why it's here
 		for (int i = 0; i < vtemp.size(); i++)
