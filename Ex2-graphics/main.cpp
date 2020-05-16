@@ -319,29 +319,12 @@ void mouse(int bin, int state, int x, int y)
 				}
 				else
 				{
-					if (shape == 3)
+					if (shape == 4)
 					{
 						move(x, y, tmpx, tmpy);
 					}
 					isSecond = false;
-				}
-				if (shape == 4)
-				{
-					//curveArrayToPrint[curvePoints].setxy((float)x, (float)(y));
-					//curvePoints++;
 
-					//if (curvePoints == clicks)
-					{
-						//Point p1 = curveArrayToPrint[0];
-						/* Draw each segment of the curve.Make t increment in smaller amounts for a more detailed curve.*/
-						/*for (double t = 0.0; t <= 1.0; t += 0.002)
-						{
-							//Point p2 = curveCalc(curveArrayToPrint, t);
-							myLine(p1.x, p1.y, p2.x, p2.y);
-							p1 = p2;
-						}
-						curvePoints = 0;*/
-					}
 				}
 			}
 		}
@@ -362,11 +345,45 @@ void reshape(int w, int h)
 	glViewport(0, 0, w, h);
 }
 
+void processFlipMenu(int value)
+{
+	shape = value;
+
+	switch (shape)
+	{
+	case 0:
+		verticalFlip();
+		break;
+	case 1:
+		horizonFlip();
+		break;
+	}
+}
+
+void processZoomMenu(int value)
+{
+
+	switch (shape)
+	{
+	case 2:
+		break;
+	case 3:
+		break;
+	}
+}
+
+
 void processMainMenu(int value)
 {
 	switch (value)
 	{
-	case 0:
+	case 4:
+		shape = value;
+		isSecond = false;
+		glutSetCursor(GLUT_CURSOR_CROSSHAIR);
+		break;
+
+	case 7:
 		quit();
 		break;
 	}
@@ -375,42 +392,25 @@ void processMainMenu(int value)
 }
 
 
-
-void processShapeMenu(int value)
-{
-	shape = value;
-	isSecond = false;
-
-	switch (shape)
-	{
-	case 1:
-		verticalFlip();
-		break;
-	case 2:
-		horizonFlip();
-		break;
-	case 3:
-		glutSetCursor(GLUT_CURSOR_CROSSHAIR);
-		break;
-	}
-}
-
-
-
-
 void createOurMenu()
 {
 
-	int actionMenu = glutCreateMenu(processShapeMenu);
-	glutAddMenuEntry("Horizon Flip", 1);
-	glutAddMenuEntry("Vertical Flip", 2);
-	glutAddMenuEntry("Move", 3);
+	int flipMenu = glutCreateMenu(processFlipMenu);
+	glutAddMenuEntry("Horizon Flip", 0);
+	glutAddMenuEntry("Vertical Flip", 1);
 
 
+	int zoomMenu = glutCreateMenu(processZoomMenu);
+	glutAddMenuEntry("Zoom In", 2);
+	glutAddMenuEntry("Zoom Out", 3);
 
 	int main_id = glutCreateMenu(processMainMenu);
-	glutAddSubMenu("Actions", actionMenu);
-	glutAddMenuEntry("Quit", 0);
+	glutAddSubMenu("Flips", flipMenu);
+	glutAddSubMenu("Zoom TBD", zoomMenu);
+	glutAddMenuEntry("Move", 4);
+	glutAddMenuEntry("Clear TBD", 5);
+	glutAddMenuEntry("Load File TBD", 6);
+	glutAddMenuEntry("Quit", 7);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
