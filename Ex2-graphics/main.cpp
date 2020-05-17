@@ -41,7 +41,6 @@ using namespace std;
 
 float red = 0.0, green = 0.0, blue = 0.0; // initiate it to black
 int tmpx, tmpy; // store the first point when shape is line, or circle
-int tmpcx1, tmpcy1, tmpcx2, tmpcy2, tmpcx3, tmpcy3, tmpcx4, tmpcy4;
 bool isSecond = false;
 float window_w = 500;
 float window_h = 500;
@@ -54,8 +53,9 @@ vector<vector<int>> vectorCurves;
 int shape = 1; // modes
 int movex = 0;
 int movey = 0;
-int zoomStop = 4; // was made to prevent cord data loss for zooming out passed the original cords
+int zoomStop = 3; // was made to prevent cord data loss for zooming out passed the original cords
 bool moved = false;
+vector<vector<int>> movestack;
 bool horizontal = false;
 bool vertical = false;
 vector<Pixel> pixels;		// store all pixels
@@ -63,7 +63,7 @@ vector<Pixel> centeredPixels;
 void drawObject(int mode, int zoom);
 void findObCenter(vector<Pixel>&p,int& centerX, int& centerY);
 void centerObject(vector<Pixel> &p);
-void move(int x, int y, int tmpx, int tmpy);
+void move(int x, int y, int tmpx, int tmpy, int change);
 void display(void)
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -91,6 +91,23 @@ void clearAll()
 {
 	pixels.clear();
 	centeredPixels.clear();
+	vectorLines.clear();
+	vectorCircles.clear();
+	vectorCurves.clear();
+	movestack.clear();
+	horizontal = false;
+	vertical = false;
+	moved = false;
+	isSecond = false;
+	shape = 1;
+	zoomStop = 3;
+	objectHeight = 0;
+	objectWidth = 0;
+	for (int i = 0; i < 100; i++)
+	{
+		curveArrayToPrint[i].setxy(0, 0);
+	}
+	
 	glClear(GL_COLOR_BUFFER_BIT);
 	glutSwapBuffers();
 }
@@ -259,6 +276,7 @@ void findObHeightAndWeight()
 }
 void horizonFlip(int c)
 {
+	int centerX, centerY;
 	if (horizontal)
 		horizontal = false;
 	else
@@ -276,7 +294,7 @@ void horizonFlip(int c)
 	{
 		centeredPixels = ptemp;
 		if(c)
-			move(0, 0, 0, 0);
+			move(0, 0, 0, 0, 1);
 	}
 	
 
@@ -301,25 +319,40 @@ void verticalFlip(int c)
 	{
 		centeredPixels = ptemp;
 		if (c)
-			move(0, 0, 0, 0);
+			move(0, 0, 0, 0, 1); // תסדר פונקציית הזזה, האובייקט פיקסל חוזר לנקודת האמצע
 	}
 
 
 }
-void move(int x, int y, int tmpx, int tmpy)
+void move(int x, int y, int tmpx, int tmpy, int change)
 {
 	moved = true;
 	if (x | y | tmpx | tmpy)
 	{
 		movex = x - tmpx;
 		movey = tmpy - y;
+		movestack.insert(movestack.end(), { movex,movey });
 	}
 	auto ptemp = pixels;
 	clear();
-	for (unsigned int i = 0; i < ptemp.size(); i++)
+	if (change)
 	{
-		ptemp[i].setPosition( ptemp[i].getX() + movex, ptemp[i].getY() + movey);
+		for (unsigned int i = 0; i < movestack.size(); i++)
+		{
+			for (unsigned int j = 0; j < ptemp.size(); j++)
+			{
+				ptemp[j].setPosition(ptemp[j].getX() + movestack[i][0], ptemp[j].getY() + movestack[i][1]);
+			}
+		}
 	}
+	else
+	{
+		for (unsigned int j = 0; j < ptemp.size(); j++)
+		{
+			ptemp[j].setPosition(ptemp[j].getX() + movex, ptemp[j].getY() + movey);
+		}
+	}
+
 	pixels = ptemp;
 }
 
@@ -369,7 +402,7 @@ void mouse(int bin, int state, int x, int y)
 				{
 					if (shape == 4)
 					{
-						move(x, y, tmpx, tmpy);
+						move(x, y, tmpx, tmpy, 0);
 					}
 					isSecond = false;
 
@@ -400,10 +433,10 @@ void processFlipMenu(int value)
 	switch (shape)
 	{
 	case 0:
-		verticalFlip(1);
+		horizonFlip(1);
 		break;
 	case 1:
-		horizonFlip(1);
+		verticalFlip(1);
 		break;
 	}
 }
@@ -715,7 +748,7 @@ void centerObject(vector<Pixel> &p)
 }
 void drawObject(int mode, int zoom) 
 {
-	clearAll();
+	clear();
 	if (mode)
 	{
 		zoomInOut(vectorLines,zoom);
@@ -753,7 +786,7 @@ void drawObject(int mode, int zoom)
 		vertical = true;
 	}
 	if (moved)
-		move(0, 0, 0, 0);
+		move(0, 0, 0, 0, 1);
 }
 
 int main(int argc, char **argv)
