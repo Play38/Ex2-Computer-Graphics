@@ -104,6 +104,7 @@ void clearAll()
 	zoomStop = 3;
 	objectHeight = 0;
 	objectWidth = 0;
+	rotateCount = 0;
 	for (int i = 0; i < 100; i++)
 	{
 		curveArrayToPrint[i].setxy(0, 0);
@@ -335,8 +336,11 @@ void rotateRL(int right, int left, int c)
 		ptemp = centeredPixels;
 	for (unsigned int i = 0; i < ptemp.size(); i++)
 	{
-			ptemp[i].setPosition(ptemp[i].getY(), -ptemp[i].getX() + 500); // rotate clockwise
-	}
+		if(right)
+			ptemp[i].setPosition(ptemp[i].getY(), -ptemp[i].getX() + window_w); // rotate clockwise
+		else if(left)
+			ptemp[i].setPosition(-ptemp[i].getY() + window_h, ptemp[i].getX()); // rotate clockwise
+	}	
 	pixels = ptemp;
 
 	if (moved)
@@ -493,6 +497,10 @@ void processRotateMenu(int value)
 		rotateRL(1,0,1);
 		break;
 	case 5: // rotateLeft
+		rotateCount = (rotateCount - 1) % 4;
+		if (rotateCount == -1)
+			rotateCount = 3;
+		rotateRL(0,1, 1);
 		break;
 	}
 }
@@ -825,6 +833,8 @@ void drawObject(int mode, int zoom)
 		verticalFlip(0);
 		vertical = true;
 	}
+	for (int i = 0; i < rotateCount; i++)
+		rotateRL(1, 0, 0);
 	//enter here rotate
 	if (moved)
 		move(0, 0, 0, 0, 1);
