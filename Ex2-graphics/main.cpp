@@ -54,6 +54,7 @@ int shape = 1; // modes
 int movex = 0;
 int movey = 0;
 int zoomStop = 3; // was made to prevent cord data loss for zooming out passed the original cords
+int rotateCount = 0; //0 default, 1 rotate 1 time to right, 2 rotate 2 
 bool moved = false;
 vector<vector<int>> movestack;
 bool horizontal = false;
@@ -319,11 +320,33 @@ void verticalFlip(int c)
 	{
 		centeredPixels = ptemp;
 		if (c)
-			move(0, 0, 0, 0, 1); // תסדר פונקציית הזזה, האובייקט פיקסל חוזר לנקודת האמצע
+			move(0, 0, 0, 0, 1); 
 	}
 
 
 }
+
+
+void rotateRL(int right, int left, int c)
+{
+	auto ptemp = pixels;
+	clear();
+	if (moved)
+		ptemp = centeredPixels;
+	for (unsigned int i = 0; i < ptemp.size(); i++)
+	{
+			ptemp[i].setPosition(ptemp[i].getY(), -ptemp[i].getX() + 500); // rotate clockwise
+	}
+	pixels = ptemp;
+
+	if (moved)
+	{
+		centeredPixels = ptemp;
+		if (c)
+			move(0, 0, 0, 0, 1);
+	}
+}
+
 void move(int x, int y, int tmpx, int tmpy, int change)
 {
 	moved = true;
@@ -400,7 +423,7 @@ void mouse(int bin, int state, int x, int y)
 				}
 				else
 				{
-					if (shape == 4)
+					if (shape == 6)
 					{
 						move(x, y, tmpx, tmpy, 0);
 					}
@@ -460,22 +483,35 @@ void processZoomMenu(int value)
 	}
 }
 
+void processRotateMenu(int value)
+{
+
+	switch (value)
+	{
+	case 4: // rotateRight
+		rotateCount = (rotateCount + 1) % 4;
+		rotateRL(1,0,1);
+		break;
+	case 5: // rotateLeft
+		break;
+	}
+}
 
 void processMainMenu(int value)
 {
 	switch (value)
 	{
-	case 4:
+	case 6:
 		shape = value;
 		isSecond = false;
 		glutSetCursor(GLUT_CURSOR_CROSSHAIR);
 		break;
 
-	case 5:
+	case 7:
 		clearAll();
 		break;
 
-	case 7:
+	case 8:
 		quit();
 		break;
 	}
@@ -496,13 +532,18 @@ void createOurMenu()
 	glutAddMenuEntry("Zoom In", 2);
 	glutAddMenuEntry("Zoom Out", 3);
 
+	int rotateMenu = glutCreateMenu(processRotateMenu);
+	glutAddMenuEntry("Rotate Right", 4);
+	glutAddMenuEntry("Rotate Left", 5);
+
 	int main_id = glutCreateMenu(processMainMenu);
 	glutAddSubMenu("Flips", flipMenu);
-	glutAddSubMenu("Zoom TBD", zoomMenu);
-	glutAddMenuEntry("Move", 4);
-	glutAddMenuEntry("Clear", 5);
-	glutAddMenuEntry("Load File TBD", 6);
-	glutAddMenuEntry("Quit", 7);
+	glutAddSubMenu("Zoom", zoomMenu);
+	glutAddSubMenu("Rotates", rotateMenu);
+	glutAddMenuEntry("Move", 6);
+	glutAddMenuEntry("Clear", 7);
+	glutAddMenuEntry("Load File TBD", 8);
+	glutAddMenuEntry("Quit", 9);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
@@ -727,7 +768,6 @@ void centerObject(vector<Pixel> &p)
 	int centerX = 0;
 	int centerY = 0;
 	findObCenter(p,centerX, centerY);
-	
 	centerX /= p.size();
 	centerY /= p.size();
 	////// CHECK where to center
@@ -785,6 +825,7 @@ void drawObject(int mode, int zoom)
 		verticalFlip(0);
 		vertical = true;
 	}
+	//enter here rotate
 	if (moved)
 		move(0, 0, 0, 0, 1);
 }
