@@ -456,59 +456,59 @@ void reshape(int w, int h)
 void processFlipMenu(int value)
 {
 	shape = value;
-
-	switch (shape)
-	{
-	case 0:
-		horizonFlip(1);
-		break;
-	case 1:
-		verticalFlip(1);
-		break;
-	}
+		switch (shape)
+		{
+		case 0:
+			horizonFlip(1);
+			break;
+		case 1:
+			verticalFlip(1);
+			break;
+		}
 }
 
 void processZoomMenu(int value)
 {
 
-	switch (value)
-	{
-	case 2: // zoom in
-		drawObject(1, 0);
-		zoomStop++;
-		break;
-	case 3: //zoom out
-		if (zoomStop != 0)
+		switch (value)
 		{
-			drawObject(1, 1);
-			zoomStop--;
+		case 2: // zoom in
+			drawObject(1, 0);
+			zoomStop++;
+			break;
+		case 3: //zoom out
+			if (zoomStop != 0)
+			{
+				drawObject(1, 1);
+				zoomStop--;
+			}
+			break;
 		}
-		break;
-	}
 }
 
 void processRotateMenu(int value)
 {
 
-	switch (value)
-	{
-	case 4: // rotateRight
-		rotateCount = (rotateCount + 1) % 4;
-		rotateRL(1,0,1);
-		break;
-	case 5: // rotateLeft
-		rotateCount = (rotateCount - 1) % 4;
-		if (rotateCount == -1)
-			rotateCount = 3;
-		rotateRL(0,1, 1);
-		break;
-	}
+		switch (value)
+		{
+		case 4: // rotateRight
+			rotateCount = (rotateCount + 1) % 4;
+			rotateRL(1, 0, 1);
+			break;
+		case 5: // rotateLeft
+			rotateCount = (rotateCount - 1) % 4;
+			if (rotateCount == -1)
+				rotateCount = 3;
+			rotateRL(0, 1, 1);
+			break;
+		}
 }
 
 void processMainMenu(int value)
 {
 	switch (value)
 	{
+		
 	case 6:
 		shape = value;
 		isSecond = false;
@@ -518,7 +518,6 @@ void processMainMenu(int value)
 	case 7:
 		clearAll();
 		break;
-
 	case 8:
 		quit();
 		break;
@@ -550,8 +549,7 @@ void createOurMenu()
 	glutAddSubMenu("Rotates", rotateMenu);
 	glutAddMenuEntry("Move", 6);
 	glutAddMenuEntry("Clear", 7);
-	glutAddMenuEntry("Load File TBD", 8);
-	glutAddMenuEntry("Quit", 9);
+	glutAddMenuEntry("Quit", 8);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
@@ -586,22 +584,32 @@ void callbackInit()
 // later add errorcheck for invalid input
 void read_file(char** argv)
 {
+
+	char str[256];
 	string line;
-	ifstream myfile("ship.txt");
 	string delimiter = ",";
 	size_t pos = 0;
 	string token;
 	//0 - none, 1 - lines, 2- circle, 3- curves
 	int mode = 0;
 	int count = 0;
-
-
-	if (myfile.is_open())
+	bool done = false;
+	while (!done)
 	{
-		while (getline(myfile, line))
+		vectorLines.clear();
+		vectorCircles.clear();
+		vectorCurves.clear();
+		cout << "Please enter file name (Ex: ship.txt)" << endl;
+		cin.get(str, 256);
+		cin.ignore();
+		ifstream myfile(str);
+
+		if (myfile.is_open())
 		{
-			switch (mode)
+			while (getline(myfile, line))
 			{
+				switch (mode)
+				{
 				case 0:
 				{
 					if (!(line.find("lines")))
@@ -627,7 +635,6 @@ void read_file(char** argv)
 
 					while ((pos = line.find(delimiter)) != string::npos) {
 						token = line.substr(0, pos);
-						cout << token << endl;
 						if (count == 0)
 							x1 = stoi(token);
 						else if (count == 1)
@@ -657,13 +664,13 @@ void read_file(char** argv)
 
 					while ((pos = line.find(delimiter)) != string::npos) {
 						token = line.substr(0, pos);
-						cout << token << endl;
 						if (count == 0)
 							xc = stoi(token);
 						else if (count == 1)
 							yc = stoi(token);
 						else if (count == 2)
-						{}
+						{
+						}
 						count++;
 						line.erase(0, pos + delimiter.length());
 
@@ -676,7 +683,7 @@ void read_file(char** argv)
 
 				case 3:
 				{
-					int x1, y1, x2, y2, x3 ,y3, x4, y4;
+					int x1, y1, x2, y2, x3, y3, x4, y4;
 					count = 0;
 
 					if (!(line.find("#")))
@@ -689,7 +696,6 @@ void read_file(char** argv)
 
 					while ((pos = line.find(delimiter)) != string::npos) {
 						token = line.substr(0, pos);
-						cout << token << endl;
 						if (count == 0)
 							x1 = stoi(token);
 						else if (count == 1)
@@ -710,15 +716,17 @@ void read_file(char** argv)
 					}
 					token = line.substr(0, pos);
 					y4 = stoi(token);
-					vectorCurves.insert(vectorCurves.end(), { x1, y1, x2, y2, x3, y3, x4, y4});
+					vectorCurves.insert(vectorCurves.end(), { x1, y1, x2, y2, x3, y3, x4, y4 });
 					break;
 				}
+				}
 			}
+			myfile.close();
+			done = true;
 		}
-		myfile.close();
-	}
 
-	else cout << "Unable to open file";
+		else cout << "Unable to open file, please try again";
+	}
 }
 
 int maxElement(vector<vector<int>>& v)
@@ -797,47 +805,48 @@ void centerObject(vector<Pixel> &p)
 void drawObject(int mode, int zoom) 
 {
 	clear();
-	if (mode)
-	{
-		zoomInOut(vectorLines,zoom);
-		zoomInOut(vectorCircles, zoom);
-		zoomInOut(vectorCurves, zoom);
-	}
-	else
-	{
-		FitCordsToWindow(vectorLines);
-		FitCordsToWindow(vectorCircles);
-		FitCordsToWindow(vectorCurves);
-	}
-	for (int i = 0; i < vectorLines.size(); i++)
-		myLine(vectorLines[i][0], vectorLines[i][1], vectorLines[i][2], vectorLines[i][3]);
+		if (mode)
+		{
+			zoomInOut(vectorLines, zoom);
+			zoomInOut(vectorCircles, zoom);
+			zoomInOut(vectorCurves, zoom);
+		}
+		else
+		{
+			FitCordsToWindow(vectorLines);
+			FitCordsToWindow(vectorCircles);
+			FitCordsToWindow(vectorCurves);
+		}
+		for (int i = 0; i < vectorLines.size(); i++)
+			myLine(vectorLines[i][0], vectorLines[i][1], vectorLines[i][2], vectorLines[i][3]);
 
-	for (int i = 0; i < vectorCircles.size(); i++)
-		myCircle(vectorCircles[i][0], vectorCircles[i][1], vectorCircles[i][2]);
+		for (int i = 0; i < vectorCircles.size(); i++)
+			myCircle(vectorCircles[i][0], vectorCircles[i][1], vectorCircles[i][2]);
 
-	for (int i = 0; i < vectorCurves.size(); i++)
-		myCurve(vectorCurves[i]);
+		for (int i = 0; i < vectorCurves.size(); i++)
+			myCurve(vectorCurves[i]);
 
-	auto ptemp = pixels;
-	centerObject(ptemp);
-	pixels = ptemp;
-	centeredPixels = ptemp;
-	//
-	if (horizontal)
-	{
-		horizonFlip(0);
-		horizontal = true;
-	}
-	if (vertical)
-	{
-		verticalFlip(0);
-		vertical = true;
-	}
-	for (int i = 0; i < rotateCount; i++)
-		rotateRL(1, 0, 0);
-	//enter here rotate
-	if (moved)
-		move(0, 0, 0, 0, 1);
+		auto ptemp = pixels;
+		centerObject(ptemp);
+		pixels = ptemp;
+		centeredPixels = ptemp;
+		//
+		if (horizontal)
+		{
+			horizonFlip(0);
+			horizontal = true;
+		}
+		if (vertical)
+		{
+			verticalFlip(0);
+			vertical = true;
+		}
+		for (int i = 0; i < rotateCount; i++)
+			rotateRL(1, 0, 0);
+		//enter here rotate
+		if (moved)
+			move(0, 0, 0, 0, 1);
+	
 }
 
 int main(int argc, char **argv)
