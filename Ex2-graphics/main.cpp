@@ -557,10 +557,9 @@ void callbackInit()
 	glutKeyboardFunc(keyboard);
 	glutMouseFunc(mouse);
 	glutTimerFunc(17, FPS, 0);
-	drawObject(0, 0);
+	drawObject(0, 0); // here is where drawObject is called for the first time
 }
 
-// later add errorcheck for invalid input
 void read_file(char** argv)
 {
 
@@ -580,6 +579,7 @@ void read_file(char** argv)
 	while (!done)
 	{
 		error = false;
+		mode = 0;
 		vectorLines.clear();
 		vectorCircles.clear();
 		vectorCurves.clear();
