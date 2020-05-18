@@ -55,6 +55,7 @@ int rotateCount = 0; //0 default, 1 rotate 1 time to right, 2 rotate 2
 bool moved = false;
 bool horizontal = false;
 bool vertical = false;
+bool first = true;
 bool isSecond = false;
 // variables declarations //
 
@@ -63,6 +64,9 @@ Point curveArrayToPrint[100];
 vector<vector<int>> vectorLines;
 vector<vector<int>> vectorCircles;
 vector<vector<int>> vectorCurves;
+vector<vector<int>> ogvectorLines;
+vector<vector<int>> ogvectorCircles;
+vector<vector<int>> ogvectorCurves;
 vector<vector<int>> movestack;
 vector<Pixel> pixels;		// store all pixels
 vector<Pixel> centeredPixels;
@@ -394,6 +398,15 @@ void zoomInOut(vector<vector<int>>& v, int mode)
 
 	v = vtemp;
 }
+
+void reset()
+{
+	clearAll();
+	vectorLines = ogvectorLines;
+	vectorCircles = ogvectorCircles;
+	vectorCurves = ogvectorCurves;
+	drawObject(0, 0);
+}
 void mouse(int bin, int state, int x, int y)
 {
 	if (bin == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
@@ -500,6 +513,9 @@ void processMainMenu(int value)
 		clearAll();
 		break;
 	case 8:
+		reset();
+		break;
+	case 9:
 		quit();
 		break;
 	}
@@ -530,7 +546,8 @@ void createOurMenu()
 	glutAddSubMenu("Rotates", rotateMenu);
 	glutAddMenuEntry("Move", 6);
 	glutAddMenuEntry("Clear", 7);
-	glutAddMenuEntry("Quit", 8);
+	glutAddMenuEntry("Reset", 8);
+	glutAddMenuEntry("Quit", 9);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
@@ -827,6 +844,13 @@ void drawObject(int mode, int zoom)  //if mode is 1, it means we need to zoom in
 			FitCordsToWindow(vectorCircles);
 			FitCordsToWindow(vectorCurves);
 		}
+		if (first) //only occurs on first time of loading the boject
+		{
+			ogvectorLines = vectorLines;
+			ogvectorCircles = vectorCircles;
+			ogvectorCurves = vectorCurves;
+			first = false;
+		}
 		for (int i = 0; i < vectorLines.size(); i++)
 			myLine(vectorLines[i][0], vectorLines[i][1], vectorLines[i][2], vectorLines[i][3]);
 
@@ -854,7 +878,6 @@ void drawObject(int mode, int zoom)  //if mode is 1, it means we need to zoom in
 		}
 		for (int i = 0; i < rotateCount; i++)
 			rotateRL(1, 0, 0);
-		//enter here rotate
 		if (moved)
 			move(0, 0, 0, 0, 1);
 	
