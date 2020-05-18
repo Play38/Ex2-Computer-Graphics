@@ -595,6 +595,9 @@ void read_file(char** argv)
 	int count = 0;
 	bool done = false;
 	bool error = false;
+	bool linedone = false;
+	bool circledone = false;
+	bool curvedone = false;
 	while (!done)
 	{
 		error = false;
@@ -622,10 +625,13 @@ void read_file(char** argv)
 							mode = 2;
 						else if (!(line.find("curves")))
 							mode = 3;
+						else if (!(linedone && circledone && curvedone))
+						throw invalid_argument("received negative value");
 						break;
 					}
 					case 1:
 					{
+						linedone = true;
 						int x1, x2, y1, y2;
 						count = 0;
 						if (!(line.find("#")))
@@ -659,6 +665,7 @@ void read_file(char** argv)
 					}
 					case 2:
 					{
+						circledone = true;
 						int xc, yc, R;
 						count = 0;
 						if (!(line.find("#")))
@@ -692,6 +699,7 @@ void read_file(char** argv)
 
 					case 3:
 					{
+						curvedone = true;
 						int x1, y1, x2, y2, x3, y3, x4, y4;
 						count = 0;
 
