@@ -1,3 +1,5 @@
+// Written by: Ofir Cohen 307923615, Omer Guttman 313432213, Omri Gil 305292179
+
 #pragma warning(disable:4996)
 #include "Pixel.h"
 #include "Point.h"
