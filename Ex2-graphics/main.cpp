@@ -594,8 +594,10 @@ void read_file(char** argv)
 	int mode = 0;
 	int count = 0;
 	bool done = false;
+	bool error = false;
 	while (!done)
 	{
+		error = false;
 		vectorLines.clear();
 		vectorCircles.clear();
 		vectorCurves.clear();
@@ -606,123 +608,142 @@ void read_file(char** argv)
 
 		if (myfile.is_open())
 		{
-			while (getline(myfile, line))
+			try
 			{
-				switch (mode)
+				while (getline(myfile, line))
 				{
-				case 0:
-				{
-					if (!(line.find("lines")))
-						mode = 1;
-					else if (!(line.find("circles")))
-						mode = 2;
-					else if (!(line.find("curves")))
-						mode = 3;
-					break;
-				}
-				case 1:
-				{
-					int x1, x2, y1, y2;
-					count = 0;
-					if (!(line.find("#")))
+					switch (mode)
 					{
-						mode = 0;
+					case 0:
+					{
+						if (!(line.find("lines")))
+							mode = 1;
+						else if (!(line.find("circles")))
+							mode = 2;
+						else if (!(line.find("curves")))
+							mode = 3;
 						break;
 					}
-
-					// remove () from the string
-					line = line.substr(1, line.size() - 2);
-
-					while ((pos = line.find(delimiter)) != string::npos) {
-						token = line.substr(0, pos);
-						if (count == 0)
-							x1 = stoi(token);
-						else if (count == 1)
-							y1 = stoi(token);
-						else if (count == 2)
-							x2 = stoi(token);
-						count++;
-						line.erase(0, pos + delimiter.length());
-
-					}
-					token = line.substr(0, pos);
-					y2 = stoi(token);
-					vectorLines.insert(vectorLines.end(), { x1,y1,x2,y2 });
-					break;
-				}
-				case 2:
-				{
-					int xc, yc, R;
-					count = 0;
-					if (!(line.find("#")))
+					case 1:
 					{
-						mode = 0;
-						break;
-					}
-
-					line = line.substr(1, line.size() - 2);
-
-					while ((pos = line.find(delimiter)) != string::npos) {
-						token = line.substr(0, pos);
-						if (count == 0)
-							xc = stoi(token);
-						else if (count == 1)
-							yc = stoi(token);
-						else if (count == 2)
+						int x1, x2, y1, y2;
+						count = 0;
+						if (!(line.find("#")))
 						{
+							mode = 0;
+							break;
 						}
-						count++;
-						line.erase(0, pos + delimiter.length());
 
+						// remove () from the string
+						line = line.substr(1, line.size() - 2);
+					
+							while ((pos = line.find(delimiter)) != string::npos) {
+								token = line.substr(0, pos);
+								if (count == 0)
+									x1 = stoi(token);
+								else if (count == 1)
+									y1 = stoi(token);
+								else if (count == 2)
+									x2 = stoi(token);
+								count++;
+								line.erase(0, pos + delimiter.length());
+
+							}
+							token = line.substr(0, pos);
+							y2 = stoi(token);
+							if ((x1 | y1 | x2 | y2) < 0)
+								throw invalid_argument("received negative value");
+							vectorLines.insert(vectorLines.end(), { x1,y1,x2,y2 });
+							break;
+						
 					}
-					token = line.substr(0, pos);
-					R = stoi(token);
-					vectorCircles.insert(vectorCircles.end(), { xc,yc,R });
-					break;
-				}
-
-				case 3:
-				{
-					int x1, y1, x2, y2, x3, y3, x4, y4;
-					count = 0;
-
-					if (!(line.find("#")))
+					case 2:
 					{
-						mode = 0;
+						int xc, yc, R;
+						count = 0;
+						if (!(line.find("#")))
+						{
+							mode = 0;
+							break;
+						}
+
+						line = line.substr(1, line.size() - 2);
+
+						while ((pos = line.find(delimiter)) != string::npos) {
+							token = line.substr(0, pos);
+							if (count == 0)
+								xc = stoi(token);
+							else if (count == 1)
+								yc = stoi(token);
+							else if (count == 2)
+							{
+							}
+							count++;
+							line.erase(0, pos + delimiter.length());
+
+						}
+						token = line.substr(0, pos);
+						R = stoi(token);
+						if ((xc | yc | R) < 0)
+							throw invalid_argument("received negative value");
+						vectorCircles.insert(vectorCircles.end(), { xc,yc,R });
 						break;
 					}
 
-					line = line.substr(1, line.size() - 2);
+					case 3:
+					{
+						int x1, y1, x2, y2, x3, y3, x4, y4;
+						count = 0;
 
-					while ((pos = line.find(delimiter)) != string::npos) {
+						if (!(line.find("#")))
+						{
+							mode = 0;
+							break;
+						}
+
+						line = line.substr(1, line.size() - 2);
+
+						while ((pos = line.find(delimiter)) != string::npos) {
+							token = line.substr(0, pos);
+							if (count == 0)
+								x1 = stoi(token);
+							else if (count == 1)
+								y1 = stoi(token);
+							else if (count == 2)
+								x2 = stoi(token);
+							else if (count == 3)
+								y2 = stoi(token);
+							else if (count == 4)
+								x3 = stoi(token);
+							else if (count == 5)
+								y3 = stoi(token);
+							else if (count == 6)
+								x4 = stoi(token);
+							count++;
+							line.erase(0, pos + delimiter.length());
+
+						}
 						token = line.substr(0, pos);
-						if (count == 0)
-							x1 = stoi(token);
-						else if (count == 1)
-							y1 = stoi(token);
-						else if (count == 2)
-							x2 = stoi(token);
-						else if (count == 3)
-							y2 = stoi(token);
-						else if (count == 4)
-							x3 = stoi(token);
-						else if (count == 5)
-							y3 = stoi(token);
-						else if (count == 6)
-							x4 = stoi(token);
-						count++;
-						line.erase(0, pos + delimiter.length());
-
+						y4 = stoi(token);
+						if ((x1 | y1 | x2 | y2 | x3 | y3 | x4 | y4) < 0)
+							throw invalid_argument("received negative value");
+						vectorCurves.insert(vectorCurves.end(), { x1, y1, x2, y2, x3, y3, x4, y4 });
+						break;
 					}
-					token = line.substr(0, pos);
-					y4 = stoi(token);
-					vectorCurves.insert(vectorCurves.end(), { x1, y1, x2, y2, x3, y3, x4, y4 });
-					break;
-				}
+					}
 				}
 			}
-			myfile.close();
-			done = true;
+			catch (...)
+			{
+				myfile.close();
+				error = true;
+				cout << "Invalid input. Please fix the text file and try again!\n";
+			}
+			if (!error)
+			{
+				myfile.close();
+				done = true;
+			}
 		}
 
 		else cout << "Unable to open file, please try again";
