@@ -39,28 +39,33 @@ float binomial_coff(float n, float k)
 
 using namespace std;
 
+// variables declarations //
 float red = 0.0, green = 0.0, blue = 0.0; // initiate it to black
 int tmpx, tmpy; // store the first point when shape is line, or circle
-bool isSecond = false;
 float window_w = 500;
 float window_h = 500;
+int shape = 1; // modes
+int movex = 0;
+int movey = 0;
 int objectWidth, objectHeight = 0;
+int zoomStop = 3; // was made to prevent cord data loss for zooming out passed the original cords
+int rotateCount = 0; //0 default, 1 rotate 1 time to right, 2 rotate 2 
+bool moved = false;
+bool horizontal = false;
+bool vertical = false;
+bool isSecond = false;
+// variables declarations //
+
+// vectors declarations //
 Point curveArrayToPrint[100];
 vector<vector<int>> vectorLines;
 vector<vector<int>> vectorCircles;
 vector<vector<int>> vectorCurves;
-
-int shape = 1; // modes
-int movex = 0;
-int movey = 0;
-int zoomStop = 3; // was made to prevent cord data loss for zooming out passed the original cords
-int rotateCount = 0; //0 default, 1 rotate 1 time to right, 2 rotate 2 
-bool moved = false;
 vector<vector<int>> movestack;
-bool horizontal = false;
-bool vertical = false;
 vector<Pixel> pixels;		// store all pixels
 vector<Pixel> centeredPixels;
+
+// vectors declarations //
 void drawObject(int mode, int zoom);
 void findObCenter(vector<Pixel>&p,int& centerX, int& centerY);
 void centerObject(vector<Pixel> &p);
@@ -81,14 +86,14 @@ void display(void)
 	glutSwapBuffers();
 }
 
-void clear()
+void clear() // clears only the screen
 {
 	pixels.clear();
 	glClear(GL_COLOR_BUFFER_BIT);
 	glutSwapBuffers();
 }
 
-void clearAll()
+void clearAll() //wipe out all the data
 {
 	pixels.clear();
 	centeredPixels.clear();
@@ -119,7 +124,7 @@ void quit()
 	exit(0);
 }
 
-void drawPixel(int mousex, int mousey)
+void drawPixel(int mousex, int mousey) 
 {
 	Pixel newPixel(mousex, window_h - mousey, red, green, blue);
 	pixels.push_back(newPixel);
@@ -213,8 +218,8 @@ void myCircle(int x0, int y0, int radius)
 		}
 	}
 }
-//Calculate the bezier point
 
+//Calculate the bezier point
 
 void myCurve(vector<int> v)
 {
@@ -251,32 +256,8 @@ void keyboard(unsigned char key, int xIn, int yIn)
 	}
 }
 
-void findObHeightAndWeight()
-{
 
-	int a = 0;
-	int nmax = 0;
-	int nmin = 501;
-
-	for (unsigned int i = 0; i < pixels.size(); i++)
-	{
-		a = pixels[i].getX();
-		nmax = max(a, nmax);
-		nmin = min(a, nmin);
-	}
-	objectWidth = abs(nmax - nmin);
-	a = 0;
-	nmax = 0;
-	nmin = 501;
-	for (unsigned int i = 0; i < pixels.size(); i++)
-	{
-		a = pixels[i].getY();
-		nmax = max(a, nmax);
-		nmin = min(a, nmin);
-	}
-	objectHeight = abs(nmax - nmin);
-}
-void horizonFlip(int c)
+void horizonFlip(int c) //takes the centered object, flips it, and then restore to it's previous position
 {
 	int centerX, centerY;
 	if (horizontal)
@@ -302,7 +283,7 @@ void horizonFlip(int c)
 
 
 }
-void verticalFlip(int c)
+void verticalFlip(int c) //takes the centered object, flips it, and then restore to it's previous position
 {
 	if (vertical)
 		vertical = false;
@@ -328,7 +309,7 @@ void verticalFlip(int c)
 }
 
 
-void rotateRL(int right, int left, int c)
+void rotateRL(int right, int left, int c) // rotates the object 90 degrees left or right, according to the input it recives
 {
 	auto ptemp = pixels;
 	clear();
@@ -351,8 +332,8 @@ void rotateRL(int right, int left, int c)
 	}
 }
 
-void move(int x, int y, int tmpx, int tmpy, int change)
-{
+void move(int x, int y, int tmpx, int tmpy, int change) // takes the object and moves it across the screen, if I moved it servel times
+{                                                      //it stores the previous positions, and tracing the position from the center to the current
 	moved = true;
 	if (x | y | tmpx | tmpy)
 	{
@@ -413,8 +394,6 @@ void zoomInOut(vector<vector<int>>& v, int mode)
 }
 void mouse(int bin, int state, int x, int y)
 {
-
-
 	if (bin == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 
@@ -479,7 +458,7 @@ void processZoomMenu(int value)
 		case 3: //zoom out
 			if (zoomStop != 0)
 			{
-				drawObject(1, 1);
+				drawObject(1, 1); // made it stop after number of zoomouts, as if the object is zoomed out from it's original cords, there's data loss
 				zoomStop--;
 			}
 			break;
@@ -771,7 +750,7 @@ int maxElement(vector<vector<int>>& v)
 
 	return nmax;
 }
-void FitCordsToWindow(vector<vector<int>>& v)
+void FitCordsToWindow(vector<vector<int>>& v) //fitted it for half of the screen and not all of it as to showcase zooming in is working
 {
 	auto vtemp = v;
 	// handle if there's a higher cord number
@@ -831,7 +810,7 @@ void centerObject(vector<Pixel> &p)
 		p[i].setPosition(p[i].getX() + centerX, p[i].getY() - centerY);
 	}
 }
-void drawObject(int mode, int zoom) 
+void drawObject(int mode, int zoom)  //if mode is 1, it means we need to zoom in/out, else it means we just draw the object to the fitted window
 {
 	clear();
 		if (mode)
@@ -859,7 +838,8 @@ void drawObject(int mode, int zoom)
 		centerObject(ptemp);
 		pixels = ptemp;
 		centeredPixels = ptemp;
-		//
+
+		//after drawing it restores previous attrabiutes of the object if it had any
 		if (horizontal)
 		{
 			horizonFlip(0);
